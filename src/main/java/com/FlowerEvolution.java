@@ -34,13 +34,32 @@ class Flower {
     return new Flower(sizeOfCenter, centerColor, petalColor, numberOfPetals);
   }
 
-  public Circle drawFlower(Pane pane) {
+  public Circle drawFlower(Pane pane, int index, int spacing) {
     // Draw the center of the flower
     Circle center = new Circle(sizeOfCenter);
     center.setFill(Color.rgb(centerColor[0], centerColor[1], centerColor[2]));
-    center.setTranslateX(new Random().nextInt(400));
-    center.setTranslateY(new Random().nextInt(400));
+    double centerX = 50 + index * spacing; // X position for center
+    double centerY = 300; // Y position for center
+    center.setTranslateX(centerX);
+    center.setTranslateY(centerY);
     pane.getChildren().add(center);
+
+    // Draw petals around the center
+    double petalRadius = sizeOfCenter / 2.0; // Set a smaller radius for petals
+    double angleStep = 360.0 / numberOfPetals; // Calculate angle between petals
+
+    for (int i = 0; i < numberOfPetals; i++) {
+      double angle = Math.toRadians(i * angleStep); // Convert to radians
+      double petalX = centerX + Math.cos(angle) * (sizeOfCenter + petalRadius); // Calculate x position for each petal
+      double petalY = centerY + Math.sin(angle) * (sizeOfCenter + petalRadius); // Calculate y position for each petal
+
+      Circle petal = new Circle(petalRadius);
+      petal.setFill(Color.rgb(petalColor[0], petalColor[1], petalColor[2]));
+      petal.setTranslateX(petalX);
+      petal.setTranslateY(petalY);
+      pane.getChildren().add(petal); // Add petal to pane
+    }
+
     return center;
   }
 
@@ -129,18 +148,19 @@ public class FlowerEvolution extends Application {
   @Override
   public void start(Stage primaryStage) {
     Pane pane = new Pane();
-    Scene scene = new Scene(pane, 600, 600);
+    Scene scene = new Scene(pane, 1000, 600);
 
     primaryStage.setTitle("Flower Evolution");
     primaryStage.setScene(scene);
     primaryStage.show();
 
     population = new Population(8, mutationRate);
-
-    // Display the initial population
+    int spacing = 80;
+    int index = 0;
     for (Flower flower : population.getFlowers()) {
-      Circle flowerCircle = flower.drawFlower(pane);
+      Circle flowerCircle = flower.drawFlower(pane, index, spacing);
       setupHoverInteraction(flower, flowerCircle);
+      index++;
     }
   }
 
